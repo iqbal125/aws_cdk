@@ -3,7 +3,6 @@ import * as ec2 from "@aws-cdk/aws-ec2"
 import * as ecs from "@aws-cdk/aws-ecs"
 import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns"
 
-
 export class AwsCdkFargateStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
@@ -15,27 +14,23 @@ export class AwsCdkFargateStack extends cdk.Stack {
       vpc,
     })
 
-    const loadBalancedFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "Service", {
+    // Add capacity to it
+    cluster.addCapacity("DefaultAutoScalingGroupCapacity", {
+      instanceType: new ec2.InstanceType("t2.micro"),
+      desiredCapacity: 1,
+    })
+
+    const taskDefinition = new ecs.Ec2TaskDefinition(this, "TaskDef")
+
+    taskDefinition.addContainer("DefaultContainer", {
+      image: ecs.ContainerImage.fromAsset("./local-image"),
+      memoryLimitMiB: 512,
+    })
+
+    // Instantiate an Amazon ECS Service
+    const ecsService = new ecs.Ec2Service(this, "Service", {
       cluster,
-      memoryLimitMiB: 1024,
-      desiredCount: 1,
-      cpu: 512,
-      taskImageOptions: {
-        image: ecs.ContainerImage.fromAsset("./local-image"),
-      },
-    })
-
-    const scalableTarget = loadBalancedFargateService.service.autoScaleTaskCount({
-      minCapacity: 1,
-      maxCapacity: 20,
-    })
-
-    scalableTarget.scaleOnCpuUtilization("CpuScaling", {
-      targetUtilizationPercent: 50,
-    })
-
-    scalableTarget.scaleOnMemoryUtilization("MemoryScaling", {
-      targetUtilizationPercent: 50,
+      taskDefinition,
     })
   }
 }
