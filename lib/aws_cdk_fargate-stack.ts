@@ -2,7 +2,7 @@ import * as cdk from "@aws-cdk/core"
 import * as ec2 from "@aws-cdk/aws-ec2"
 import * as ecs from "@aws-cdk/aws-ecs"
 import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns"
-import * as path from "path"
+
 
 export class AwsCdkFargateStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -21,7 +21,7 @@ export class AwsCdkFargateStack extends cdk.Stack {
       desiredCount: 1,
       cpu: 512,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromAsset(path.resolve(__dirname, "local-image")),
+        image: ecs.ContainerImage.fromAsset("./local-image"),
       },
     })
 
