@@ -20,7 +20,7 @@ export class AwsCdkFargateStack extends cdk.Stack {
       desiredCapacity: 1,
     })
 
-    const taskDefinition = new ecs.Ec2TaskDefinition(this, "TaskDef")
+    const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDef")
 
     taskDefinition.addContainer("DefaultContainer", {
       image: ecs.ContainerImage.fromAsset("./local-image"),
@@ -28,9 +28,10 @@ export class AwsCdkFargateStack extends cdk.Stack {
     })
 
     // Instantiate an Amazon ECS Service
-    const ecsService = new ecs.Ec2Service(this, "Service", {
+    const ecsService = new ecs.FargateService(this, "Service", {
       cluster,
       taskDefinition,
+      assignPublicIp: true,
     })
   }
 }
