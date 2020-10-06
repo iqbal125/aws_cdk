@@ -22,9 +22,14 @@ export class AwsCdkFargateStack extends cdk.Stack {
 
     const taskDefinition = new ecs.FargateTaskDefinition(this, "TaskDef")
 
+    const logging = new ecs.AwsLogDriver({
+      streamPrefix: "myapp",
+    })
+
     taskDefinition.addContainer("DefaultContainer", {
       image: ecs.ContainerImage.fromAsset("./local-image"),
       memoryLimitMiB: 512,
+      logging,
     })
 
     // Instantiate an Amazon ECS Service
