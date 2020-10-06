@@ -18,10 +18,10 @@ export class AwsCdkServerlessCrudStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     })
 
-    //const createOne = new lambdaNode.NodejsFunction(this, "createItemFunction", {
-    //  entry: "Lambda/create2/create.js",
+    //const createOne2 = new lambdaNode.NodejsFunction(this, "createItemFunction", {
+    //  entry: "Lambda/create/create.js",
     //  handler: "handler",
-    //  externalModules: ["aws-sdk", "uuidv4"],
+    //  //externalModules: ["aws-sdk", "uuid"],
     //})
 
     const createOne = new lambda.Function(this, "createItemFunction", {
