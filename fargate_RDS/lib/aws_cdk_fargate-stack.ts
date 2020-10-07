@@ -6,6 +6,13 @@ import {Port} from "@aws-cdk/aws-ec2"
 
 require("dotenv").config()
 
+/* 
+Have to do manually currently if making db publically accessible:
+1.  Add internet Gateway to Subnet route table of db
+2.  Make db publically accessible in console
+3.  Add the db config to env file in local-image
+*/
+
 export class AwsCdkFargateStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
@@ -50,17 +57,19 @@ export class AwsCdkFargateStack extends cdk.Stack {
       vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
       credentials: rds.Credentials.fromUsername(db_username, {password: db_password}),
-      databaseName: db_name,
+      databaseName: "postgresdb",
     })
 
     instance.connections.allowFrom(securityGroupFargate, ec2.Port.tcp(5432))
+    //Enter your own Ip here to allow remote DB modifications
+    //instance.connections.allowFrom(ec2.Peer.ipv4("0.0.0.0/0"), ec2.Port.tcp(5432))
 
     // Instantiate an Amazon ECS Service
     const ecsService = new ecs.FargateService(this, "Service", {
       cluster,
       taskDefinition,
       assignPublicIp: true,
-      securityGroups: [securityGroup],
+      securityGroups: [securityGroupFargate],
     })
   }
 }
