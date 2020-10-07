@@ -3,6 +3,8 @@ import * as ec2 from "@aws-cdk/aws-ec2"
 import * as ecs from "@aws-cdk/aws-ecs"
 import * as rds from "@aws-cdk/aws-rds"
 
+require("dotenv").config()
+
 export class AwsCdkFargateStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
@@ -14,10 +16,19 @@ export class AwsCdkFargateStack extends cdk.Stack {
       vpc,
     })
 
+    const db_name = process.env.DB_NAME
+    const db_password = process.env.DB_PASSWORD
+    const db_username = process.env.DB_USERNAME
+
     const instance = new rds.DatabaseInstance(this, "Instance", {
       engine: rds.DatabaseInstanceEngine.postgres({version: rds.PostgresEngineVersion.VER_10}),
       vpc,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
+      credentials: rds.Credentials.fromUsername(db_username, {password: db_password}),
+      databaseName: db_name,
     })
+
+    //instance.connections.
 
     // Add capacity to it
     cluster.addCapacity("DefaultAutoScalingGroupCapacity", {
